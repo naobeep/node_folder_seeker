@@ -1,21 +1,23 @@
-import { fs } from "fs";
-import { path } from "path";
-const dir = process.argv[2] || '.'
+import * as fs from 'fs';
+import * as path from 'path';
+const dir = process.argv[2] || '.';
 
-const walk =(p,cb) =>{
-  const results = []
-  fs.readdir(p,(err,files)=>{
-    if(err) throw err
+const walk = (p, cb) => {
+  const results = [];
+  fs.readdir(p, (err, files) => {
+    if (err) throw err;
 
-    const pending = files.length
-    if(!pending) return cb(null,results);
+    files.forEach(file => {
+      const fp = path.join(p, file);
+      if (fs.statSync(fp).isDirectory()) {
+        walk(fp, cb);
+      } else {
+        cb(fp);
+      }
+    });
+  });
+};
 
-    files.map(file=>{
-      return path.join(p,file)
-    }).filter(file=>{
-      if(fs.statSync(file).isDirectory()) walk(file,(err,res)=>{
-        
-      })
-    })
-  })
-}
+walk(dir, path => {
+  console.log(path);
+});
