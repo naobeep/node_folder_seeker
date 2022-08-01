@@ -7,17 +7,31 @@ const walk = (p, cb) => {
   fs.readdir(p, (err, files) => {
     if (err) throw err;
 
-    files.forEach(file => {
-      const fp = path.join(p, file);
-      if (fs.statSync(fp).isDirectory()) {
-        walk(fp, cb);
-      } else {
-        cb(fp);
-      }
-    });
+    files
+      .map(file => {
+        return path.join(p, file);
+      })
+      .filter(file => {
+        if (path.basename(file) === '.git') return;
+        console.log(file);
+        if (fs.statSync(file).isDirectory()) {
+          walk(file, () => {
+            console.log(path.basename(file));
+            results.push({ name: path.basename(file) });
+          });
+        }
+      })
+      .forEach(file => {
+        // const fp = path.join(p, file);
+        //  else {
+        //   cb(fp);
+        // }
+      });
   });
+
+  // console.log(results);
 };
 
 walk(dir, path => {
-  console.log(path);
+  // console.log(path);
 });
