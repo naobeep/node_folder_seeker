@@ -2,36 +2,49 @@ import * as fs from 'fs';
 import * as path from 'path';
 const dir = process.argv[2] || '.';
 
-const walk = (p, cb) => {
-  const results = [];
+let currentFolder = 'root';
+
+const results = {
+  root: {
+    files: [],
+  },
+};
+const detect = (p, cb) => {
   fs.readdir(p, (err, files) => {
-    if (err) throw err;
+    if (err) console.error(err);
 
-    files
-      .map(file => {
-        return path.join(p, file);
-      })
-      .filter(file => {
-        if (path.basename(file) === '.git') return;
-        console.log(file);
-        if (fs.statSync(file).isDirectory()) {
-          walk(file, () => {
-            console.log(path.basename(file));
-            results.push({ name: path.basename(file) });
-          });
-        }
-      })
-      .forEach(file => {
-        // const fp = path.join(p, file);
-        //  else {
-        //   cb(fp);
-        // }
-      });
+    files.forEach(file => {
+      if (file === '.git') return;
+      const fp = path.join(p, file);
+      if (fs.statSync(fp).isDirectory()) {
+        // results.children.push({ [file]: {} });
+        results[currentFolder][file]={};
+        detect(fp, cb);
+      } else {
+        // results.children.push({ files: file });
+        console.log(results[currentFolder]);
+        results[currentFolder].files.push({ files: file });
+      }
+    });
   });
-
-  // console.log(results);
+  console.log(60, results);
 };
 
-walk(dir, path => {
-  // console.log(path);
+detect(dir, () => {
+  console.log(results);
 });
+
+const hoge = {
+  name: 'root',
+  children: [
+    { name: 'hoge', children: [] },
+    { name: 'fuga', children: [] },
+  ],
+  root: {
+    hoge: {
+      piyo: {},
+      file: ['1.txt', '2,txt', '3.txt', '4.txt'],
+    },
+    fuga: {},
+  },
+};
