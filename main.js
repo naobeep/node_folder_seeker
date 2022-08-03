@@ -17,11 +17,9 @@ const detect = (p, cb) => {
       if (file === '.git') return;
       const fp = path.join(p, file);
       if (fs.statSync(fp).isDirectory()) {
-        // results.children.push({ [file]: {} });
         results[currentFolder][file] = {};
         detect(fp, cb);
       } else {
-        // results.children.push({ files: file });
         console.log(results[currentFolder]);
         results[currentFolder].files.push({ files: file });
       }
