@@ -18,7 +18,7 @@ const detect = (p, cb) => {
       const fp = path.join(p, file);
       if (fs.statSync(fp).isDirectory()) {
         // results.children.push({ [file]: {} });
-        results[currentFolder][file]={};
+        results[currentFolder][file] = {};
         detect(fp, cb);
       } else {
         // results.children.push({ files: file });
