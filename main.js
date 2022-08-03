@@ -3,6 +3,7 @@ import * as path from 'path';
 const dir = process.argv[2] || '.';
 
 let currentFolder = 'root';
+const list = [];
 
 const results = {
   root: {
@@ -16,21 +17,24 @@ const detect = (p, cb) => {
     files.forEach(file => {
       if (file === '.git') return;
       const fp = path.join(p, file);
+      list.push(fp)
       if (fs.statSync(fp).isDirectory()) {
         results[currentFolder][file] = {};
         detect(fp, cb);
       } else {
-        console.log(results[currentFolder]);
-        results[currentFolder].files.push({ files: file });
+        results[currentFolder].files.push(file);
       }
     });
   });
-  console.log(60, results);
+  // console.log(results);
 };
 
-detect(dir, () => {
-  console.log(results);
-});
+detect(dir, () => {});
+
+setTimeout(() => {
+  // console.log(results);
+  console.log(list);
+}, 1000);
 
 const hoge = {
   name: 'root',
@@ -46,3 +50,5 @@ const hoge = {
     fuga: {},
   },
 };
+
+// console.log(hoge['root']);
