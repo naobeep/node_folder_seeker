@@ -1,26 +1,28 @@
 import * as fs from 'fs';
 import * as path from 'path';
-const dir = process.argv[2] || '.';
+const dir = process.argv[2] || './src/root';
 
 let currentFolder = 'root';
 const list = [];
+let depth = 0;
 
 const results = {
   root: {
     files: [],
   },
 };
-const detect = (p, cb) => {
+const detect = p => {
   fs.readdir(p, (err, files) => {
     if (err) console.error(err);
 
     files.forEach(file => {
       if (file === '.git') return;
       const fp = path.join(p, file);
-      list.push(fp)
+      list.push(fp);
       if (fs.statSync(fp).isDirectory()) {
         results[currentFolder][file] = {};
-        detect(fp, cb);
+        depth++;
+        detect(fp);
       } else {
         results[currentFolder].files.push(file);
       }
@@ -29,11 +31,12 @@ const detect = (p, cb) => {
   // console.log(results);
 };
 
-detect(dir, () => {});
+detect(dir);
 
 setTimeout(() => {
-  // console.log(results);
+  console.log(results);
   console.log(list);
+  console.log({ depth });
 }, 1000);
 
 const hoge = {
@@ -51,4 +54,3 @@ const hoge = {
   },
 };
 
-// console.log(hoge['root']);
