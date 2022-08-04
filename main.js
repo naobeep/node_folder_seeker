@@ -39,7 +39,7 @@ setTimeout(() => {
   console.log({ depth });
 }, 1000);
 
-const hoge = {
+const sampleObj = {
   name: 'root',
   children: [
     { name: 'hoge', children: [] },
@@ -53,4 +53,3 @@ const hoge = {
     fuga: {},
   },
 };
-
