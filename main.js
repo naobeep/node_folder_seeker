@@ -31,25 +31,45 @@ const detect = p => {
   // console.log(results);
 };
 
-detect(dir);
+// detect(dir);
 
-setTimeout(() => {
-  console.log(results);
-  console.log(list);
-  console.log({ depth });
-}, 1000);
+// setTimeout(() => {
+//   console.log(results);
+//   console.log(list);
+//   console.log({ depth });
+// }, 1000);
 
 const sampleObj = {
-  name: 'root',
-  children: [
-    { name: 'hoge', children: [] },
-    { name: 'fuga', children: [] },
-  ],
-  root: {
-    hoge: {
-      piyo: {},
-      file: ['1.txt', '2,txt', '3.txt', '4.txt'],
+  root: [
+    {hoge:[
+      'hoge.txt',
+      {fuga:[
+        'fuga.txt',
+        {piyo:[
+          'piyo.txt'
+        ]}
+      ]},
+    ]},
+    {foo:[
+      'foo.txt',
+      {bar:[
+        'bar.txt'
+      ]}
+    ]}
+  ]
+};
+
+const samplePath = 'root/hoge/fuga/fuga.txt';
+const res = samplePath.split('/');
+console.log(res);
+const obj1 = {
+  [res[0]]: {
+    [res[1]]: {
+      [res[2]]: {
+        [res[3]]: res[4],
+      },
     },
-    fuga: {},
   },
 };
+
+console.log(obj1);
