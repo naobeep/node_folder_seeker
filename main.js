@@ -33,43 +33,39 @@ const detect = p => {
 
 // detect(dir);
 
-// setTimeout(() => {
-//   console.log(results);
-//   console.log(list);
-//   console.log({ depth });
-// }, 1000);
+setTimeout(() => {
+  console.log(list);
+  let data = '';
+  for (const item of list) {
+    data += `${item}\n`;
+  }
 
-const sampleObj = {
-  root: [
-    {hoge:[
-      'hoge.txt',
-      {fuga:[
-        'fuga.txt',
-        {piyo:[
-          'piyo.txt'
-        ]}
-      ]},
-    ]},
-    {foo:[
-      'foo.txt',
-      {bar:[
-        'bar.txt'
-      ]}
-    ]}
-  ]
-};
+  fs.writeFile('./list.txt', data, err => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+  });
+}, 3000);
 
-const samplePath = 'root/hoge/fuga/fuga.txt';
-const res = samplePath.split('/');
-console.log(res);
-const obj1 = {
-  [res[0]]: {
-    [res[1]]: {
-      [res[2]]: {
-        [res[3]]: res[4],
-      },
-    },
-  },
-};
+// const sampleObj = {
+//   root: [
+//     { hoge: ['hoge.txt', { fuga: ['fuga.txt', { piyo: ['piyo.txt'] }] }] },
+//     { foo: ['foo.txt', { bar: ['bar.txt'] }] },
+//   ],
+// };
 
-console.log(obj1);
+// const samplePath = 'root/hoge/fuga/fuga.txt';
+// const res = samplePath.split('/');
+// console.log(res);
+// const obj1 = {
+//   [res[0]]: {
+//     [res[1]]: {
+//       [res[2]]: {
+//         [res[3]]: res[4],
+//       },
+//     },
+//   },
+// };
+
+// console.log(obj1);
