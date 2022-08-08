@@ -37,7 +37,9 @@ setTimeout(() => {
   console.log(list);
   let data = '';
   for (const item of list) {
-    data += `${item}\n`;
+    const arr = item.split('\\')
+    console.log(arr);
+    data += `${arr}\n`;
   }
 
   fs.writeFile('./list.txt', data, err => {
