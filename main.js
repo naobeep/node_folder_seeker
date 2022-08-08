@@ -31,7 +31,7 @@ const detect = p => {
   // console.log(results);
 };
 
-// detect(dir);
+detect(dir);
 
 setTimeout(() => {
   console.log(list);
