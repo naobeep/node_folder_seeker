@@ -17,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/naobeep/node_detect_folder/issues"
   },
-  "homepage": "https://github.com/naobeep/node_detect_folder#readme"
+  "homepage": "https://github.com/naobeep/node_detect_folder#readme",
+  "devDependencies": {
+    "xlsx": "^0.18.5"
+  }
 }

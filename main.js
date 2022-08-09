@@ -1,6 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
-const dir = process.argv[2] || './src/root';
+import { inputPath } from './modules/inputPath.js';
+const dir = inputPath() || './src/root';
+const dirLength = dir.length - 1;
 
 let currentFolder = 'root';
 const list = [];
@@ -18,12 +20,12 @@ const detect = p => {
     files.forEach(file => {
       if (file === '.git') return;
       const fp = path.join(p, file);
-      list.push(fp);
       if (fs.statSync(fp).isDirectory()) {
         results[currentFolder][file] = {};
         depth++;
         detect(fp);
       } else {
+        list.push(fp.slice(dirLength));
         results[currentFolder].files.push(file);
       }
     });
@@ -37,7 +39,7 @@ setTimeout(() => {
   console.log(list);
   let data = '';
   for (const item of list) {
-    const arr = item.split('\\')
+    const arr = item.split('\\');
     console.log(arr);
     data += `${arr}\n`;
   }
