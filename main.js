@@ -1,7 +1,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { inputPath } from './modules/inputPath.js';
-const dir = inputPath() || './src/root';
+  console.log('function!');
+
+// const dir = inputPath() || './src/root';
+const dir = './src/root';
 const dirLength = dir.length - 1;
 
 let currentFolder = 'root';
