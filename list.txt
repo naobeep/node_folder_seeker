@@ -1,6 +1,0 @@
-bar,bar.txt
-foo,foo.txt
-hoge,hoge.txt
-foo,baz,baz.txt
-hoge,fuga,fuga.txt
-hoge,fuga,piyo,piyo.txt

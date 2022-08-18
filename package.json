@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/naobeep/node_detect_folder#readme",
   "devDependencies": {
+    "colors": "^1.4.0",
     "xlsx": "^0.18.5"
   }
 }

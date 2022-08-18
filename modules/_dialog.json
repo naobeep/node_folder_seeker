@@ -1,0 +1,13 @@
+{
+  "item": [
+    {
+      "category": false,
+      "preQuestion": false,
+      "question": "target folder?",
+      "determined": "root: ",
+      "default": "C:/Users",
+      "type": "string",
+      "property": "rootDirectory"
+    }
+  ]
+}
