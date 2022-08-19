@@ -17,6 +17,15 @@
       "default": "file",
       "type": "string",
       "property": "select"
+    },
+    {
+      "category": false,
+      "preQuestion": false,
+      "question": "exclusion string?",
+      "determined": "exclusion: ",
+      "default": ".vscode",
+      "type": "string",
+      "property": "exclusionString"
     }
   ]
 }

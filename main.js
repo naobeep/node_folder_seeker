@@ -11,22 +11,20 @@ const json = JSON.parse(
 
 await dialog(settings, json);
 
-const workbook = XLSX.readFile('./assets/blanc.xlsx');
-const sheet1 = workbook.Sheets['Sheet1'];
+const workbook = XLSX.utils.book_new();
 const dir = settings.rootDirectory;
 const list = [];
-const startRow = 3;
-const startColumn = 3;
+const exclusionString = settings.exclusionString;
+const reg = new RegExp(exclusionString);
 
 const folderName = dir.split('\\').at(-1);
-sheet1['!ref'] = 'A1:L10000';
 
 const detect = p => {
   fs.readdir(p, (err, files) => {
     if (err) console.error(err);
 
     files.forEach(file => {
-      if (file.match(/(Steam)/)) return;
+      if (file.match(reg)) return;
       const fp = path.join(p, file);
       if (fs.statSync(fp).isDirectory()) {
         detect(fp);
@@ -42,17 +40,12 @@ const detect = p => {
 detect(dir);
 
 setTimeout(() => {
+  list.sort();
   console.log(list);
-  list.forEach((item, i) => {
-    item.forEach((dir, cellIndex) => {
-      const targetColumn = String.fromCodePoint(cellIndex + 65 + startColumn);
-      sheet1[`${targetColumn}${i + startRow}`] = {
-        t: 's',
-        v: dir,
-        w: dir,
-      };
-    });
+  const sheet1 = XLSX.utils.json_to_sheet(list);
+  console.log(sheet1);
+  XLSX.utils.book_append_sheet(workbook,sheet1,"Dates")
+  XLSX.writeFile(workbook, `./dist/${folderName}_directory.xlsx`, {
+    type: 'xlsx',
   });
-  workbook.Sheets['Sheet1'] = sheet1
-  XLSX.writeFile(workbook,`./dist/${folderName}_directory.xlsx`,{type:'xlsx'})
 }, 3000);
