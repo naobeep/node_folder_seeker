@@ -27,11 +27,18 @@ const detect = p => {
       if (file.match(reg)) return;
       const fp = path.join(p, file);
       if (fs.statSync(fp).isDirectory()) {
+        if (!settings.collectFiles) {
+          const trimStr = fp.replace(dir, 'root');
+          const dirArray = trimStr.split('\\');
+          list.push(dirArray);
+        }
         detect(fp);
       } else {
-        const trimStr = fp.replace(dir, 'root');
-        const dirArray = trimStr.split('\\');
-        list.push(dirArray);
+        if (settings.collectFiles) {
+          const trimStr = fp.replace(dir, 'root');
+          const dirArray = trimStr.split('\\');
+          list.push(dirArray);
+        }
       }
     });
   });
@@ -39,13 +46,16 @@ const detect = p => {
 
 detect(dir);
 
-setTimeout(() => {
+const writeFile = () => {
   list.sort();
   console.log(list);
   const sheet1 = XLSX.utils.json_to_sheet(list);
-  console.log(sheet1);
-  XLSX.utils.book_append_sheet(workbook,sheet1,"Dates")
-  XLSX.writeFile(workbook, `./dist/${folderName}_directory.xlsx`, {
+  XLSX.utils.book_append_sheet(workbook, sheet1, 'Dates');
+  XLSX.writeFile(workbook, `./dist/${folderName}_directoryMap.xlsx`, {
     type: 'xlsx',
   });
+};
+
+setTimeout(() => {
+  writeFile();
 }, 3000);

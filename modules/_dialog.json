@@ -12,11 +12,11 @@
     {
       "category": false,
       "preQuestion": false,
-      "question": "folder or file?",
-      "determined": "search target: ",
-      "default": "file",
-      "type": "string",
-      "property": "select"
+      "question": "do you collect files",
+      "determined": "collect files: ",
+      "default": "y",
+      "type": "boolean",
+      "property": "collectFiles"
     },
     {
       "category": false,
