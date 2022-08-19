@@ -8,6 +8,15 @@
       "default": "C:/Users",
       "type": "string",
       "property": "rootDirectory"
+    },
+    {
+      "category": false,
+      "preQuestion": false,
+      "question": "folder or file?",
+      "determined": "search target: ",
+      "default": "file",
+      "type": "string",
+      "property": "select"
     }
   ]
 }
