@@ -3,8 +3,8 @@
     {
       "category": false,
       "preQuestion": false,
-      "question": "target folder?",
-      "determined": "root: ",
+      "question": "検索するフォルダ？",
+      "determined": "rootDirectory: ",
       "default": "C:/Users",
       "type": "string",
       "property": "rootDirectory"
@@ -12,8 +12,8 @@
     {
       "category": false,
       "preQuestion": false,
-      "question": "do you collect files",
-      "determined": "collect files: ",
+      "question": "ファイル名を収集しますか[y/n]\n(n:フォルダ名のみ収集)",
+      "determined": "collectFiles: ",
       "default": "y",
       "type": "boolean",
       "property": "collectFiles"
@@ -21,8 +21,8 @@
     {
       "category": false,
       "preQuestion": false,
-      "question": "exclusion string?",
-      "determined": "exclusion: ",
+      "question": "除外する文字列?",
+      "determined": "exclusionString: ",
       "default": ".vscode",
       "type": "string",
       "property": "exclusionString"

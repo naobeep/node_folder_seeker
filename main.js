@@ -49,6 +49,7 @@ const listProcessing = rawList => {
   const standard = [];
   rawList.sort();
 
+  // 同一ディレクトリが続く場合、2つ目以降を空欄に
   rawList.forEach(a => {
     processedList.push(
       a.map((el, i) => {
@@ -64,10 +65,11 @@ const listProcessing = rawList => {
   });
 };
 
-const writeXLSX = rawList => {
-  const sheet1 = XLSX.utils.json_to_sheet(rawList);
+const writeXLSX = processedList => {
+  const word = settings.collectFiles ? 'fileList' : 'directoryMap';
+  const sheet1 = XLSX.utils.json_to_sheet(processedList);
   XLSX.utils.book_append_sheet(workbook, sheet1, 'Dates');
-  XLSX.writeFile(workbook, `./dist/${folderName}_directoryMap.xlsx`, {
+  XLSX.writeFile(workbook, `./dist/${folderName}_${word}.xlsx`, {
     type: 'xlsx',
   });
 };
@@ -76,4 +78,5 @@ detect(dir);
 setTimeout(() => {
   listProcessing(rawList);
   writeXLSX(processedList);
+  console.log('succeed!');
 }, 3000);
