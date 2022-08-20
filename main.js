@@ -50,7 +50,6 @@ const listProcessing = rawList => {
   rawList.sort();
 
   rawList.forEach(a => {
-    console.log({ standard }, { a });
     processedList.push(
       a.map((el, i) => {
         if (standard[i] === el) {
@@ -63,11 +62,9 @@ const listProcessing = rawList => {
       })
     );
   });
-  // console.log(processedList);
 };
 
 const writeXLSX = rawList => {
-  // console.log(rawList);
   const sheet1 = XLSX.utils.json_to_sheet(rawList);
   XLSX.utils.book_append_sheet(workbook, sheet1, 'Dates');
   XLSX.writeFile(workbook, `./dist/${folderName}_directoryMap.xlsx`, {
