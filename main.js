@@ -48,7 +48,7 @@ detect(dir);
 
 const writeFile = () => {
   list.sort();
-  console.log(list);
+  // console.log(list);
   const sheet1 = XLSX.utils.json_to_sheet(list);
   XLSX.utils.book_append_sheet(workbook, sheet1, 'Dates');
   XLSX.writeFile(workbook, `./dist/${folderName}_directoryMap.xlsx`, {
