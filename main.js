@@ -13,11 +13,12 @@ await dialog(settings, json);
 
 const workbook = XLSX.utils.book_new();
 const dir = settings.rootDirectory;
-const list = [];
 const exclusionString = settings.exclusionString;
 const reg = new RegExp(exclusionString);
 
 const folderName = dir.split('\\').at(-1);
+const rawList = [];
+const processedList = [];
 
 const detect = p => {
   fs.readdir(p, (err, files) => {
@@ -30,32 +31,52 @@ const detect = p => {
         if (!settings.collectFiles) {
           const trimStr = fp.replace(dir, 'root');
           const dirArray = trimStr.split('\\');
-          list.push(dirArray);
+          rawList.push(dirArray);
         }
         detect(fp);
       } else {
         if (settings.collectFiles) {
           const trimStr = fp.replace(dir, 'root');
           const dirArray = trimStr.split('\\');
-          list.push(dirArray);
+          rawList.push(dirArray);
         }
       }
     });
   });
 };
 
-detect(dir);
+const listProcessing = rawList => {
+  const standard = [];
+  rawList.sort();
 
-const writeFile = () => {
-  list.sort();
-  // console.log(list);
-  const sheet1 = XLSX.utils.json_to_sheet(list);
+  rawList.forEach(a => {
+    console.log({ standard }, { a });
+    processedList.push(
+      a.map((el, i) => {
+        if (standard[i] === el) {
+          return '';
+        } else {
+          standard[i] = el;
+          standard[i + 1] = '';
+          return el;
+        }
+      })
+    );
+  });
+  // console.log(processedList);
+};
+
+const writeXLSX = rawList => {
+  // console.log(rawList);
+  const sheet1 = XLSX.utils.json_to_sheet(rawList);
   XLSX.utils.book_append_sheet(workbook, sheet1, 'Dates');
   XLSX.writeFile(workbook, `./dist/${folderName}_directoryMap.xlsx`, {
     type: 'xlsx',
   });
 };
 
+detect(dir);
 setTimeout(() => {
-  writeFile();
+  listProcessing(rawList);
+  writeXLSX(processedList);
 }, 3000);
