@@ -14,7 +14,7 @@
       "preQuestion": false,
       "question": "除外する文字列(正規表現で指定してください)",
       "determined": "exclusionString: ",
-      "default": ".vscode",
+      "default": "(.svn|.vscode)",
       "type": "string",
       "property": "exclusionString"
     }
