@@ -3,7 +3,7 @@
     {
       "category": false,
       "preQuestion": false,
-      "question": "検索するフォルダ？",
+      "question": "検索するフォルダ",
       "determined": "rootDirectory: ",
       "default": "C:/Users",
       "type": "string",
@@ -21,7 +21,7 @@
     {
       "category": false,
       "preQuestion": false,
-      "question": "除外する文字列?",
+      "question": "除外する文字列",
       "determined": "exclusionString: ",
       "default": ".vscode",
       "type": "string",

@@ -1,8 +1,22 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import XLSX from 'xlsx';
+import colors from 'colors';
 import { readFile } from 'fs/promises';
 import { dialog } from './modules/dialog.js';
+
+colors.setTheme({
+  silly: 'rainbow',
+  input: 'grey',
+  verbose: 'cyan',
+  prompt: 'grey',
+  info: 'green',
+  data: 'grey',
+  help: 'cyan',
+  warn: 'yellow',
+  debug: 'blue',
+  error: 'red',
+});
 
 const settings = {};
 const json = JSON.parse(
@@ -27,19 +41,15 @@ const detect = p => {
     files.forEach(file => {
       if (file.match(reg)) return;
       const fp = path.join(p, file);
+      const trimStr = fp.replace(dir, 'root');
+      // const dirArray = trimStr.split('\\');
       if (fs.statSync(fp).isDirectory()) {
-        if (!settings.collectFiles) {
-          const trimStr = fp.replace(dir, 'root');
-          const dirArray = trimStr.split('\\');
-          rawList.push(dirArray);
-        }
+        // settings.collectFiles || rawList.push(dirArray);
+        settings.collectFiles || rawList.push(trimStr);
         detect(fp);
       } else {
-        if (settings.collectFiles) {
-          const trimStr = fp.replace(dir, 'root');
-          const dirArray = trimStr.split('\\');
-          rawList.push(dirArray);
-        }
+        // settings.collectFiles && rawList.push(dirArray);
+        settings.collectFiles && rawList.push(trimStr);
       }
     });
   });
@@ -48,9 +58,13 @@ const detect = p => {
 const listProcessing = rawList => {
   const standard = [];
   rawList.sort();
+  const splitList = rawList.map(trimStr => {
+    const dirArray = trimStr.split('\\');
+    return dirArray;
+  });
 
   // 同一ディレクトリが続く場合、2つ目以降を空欄に
-  rawList.forEach(a => {
+  splitList.forEach(a => {
     processedList.push(
       a.map((el, i) => {
         if (standard[i] === el) {
@@ -65,18 +79,29 @@ const listProcessing = rawList => {
   });
 };
 
-const writeXLSX = processedList => {
-  const word = settings.collectFiles ? 'fileList' : 'directoryMap';
-  const sheet1 = XLSX.utils.json_to_sheet(processedList);
+const writeXLSX = () => {
+  let appendix, list;
+  if (settings.collectFiles) {
+    appendix = 'fileList';
+    list = rawList.map((el, i) => {
+      const num = ('0000' + (i + 1)).slice(-4);
+      return [num, el];
+    });
+  } else {
+    appendix = 'directoryMap';
+    list = processedList;
+  }
+  console.log(`create: ${folderName}_${appendix}.xlsx`.warn);
+  const sheet1 = XLSX.utils.json_to_sheet(list);
   XLSX.utils.book_append_sheet(workbook, sheet1, 'Dates');
-  XLSX.writeFile(workbook, `./dist/${folderName}_${word}.xlsx`, {
+  XLSX.writeFile(workbook, `./dist/${folderName}_${appendix}.xlsx`, {
     type: 'xlsx',
   });
+  console.log('succeed!'.info);
 };
 
 detect(dir);
 setTimeout(() => {
-  listProcessing(rawList);
-  writeXLSX(processedList);
-  console.log('succeed!');
+  settings.collectFiles || listProcessing(rawList);
+  writeXLSX();
 }, 3000);
