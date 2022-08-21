@@ -12,16 +12,7 @@
     {
       "category": false,
       "preQuestion": false,
-      "question": "ファイル名を収集しますか[y/n]\n(n:フォルダ名のみ収集)",
-      "determined": "collectFiles: ",
-      "default": "y",
-      "type": "boolean",
-      "property": "collectFiles"
-    },
-    {
-      "category": false,
-      "preQuestion": false,
-      "question": "除外する文字列",
+      "question": "除外する文字列(正規表現で指定してください)",
       "determined": "exclusionString: ",
       "default": ".vscode",
       "type": "string",

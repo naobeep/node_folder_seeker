@@ -1,0 +1,1 @@
+node directoryMap_generator.js

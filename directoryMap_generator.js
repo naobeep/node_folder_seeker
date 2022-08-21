@@ -31,8 +31,9 @@ const exclusionString = settings.exclusionString;
 const reg = new RegExp(exclusionString);
 
 const folderName = dir.split('\\').at(-1);
-const rawList = [];
 const processedList = [];
+const fileList = [];
+const folderList = [];
 
 const detect = p => {
   fs.readdir(p, (err, files) => {
@@ -43,23 +44,24 @@ const detect = p => {
       const fp = path.join(p, file);
       const trimStr = fp.replace(dir, 'root');
       if (fs.statSync(fp).isDirectory()) {
-        settings.collectFiles || rawList.push(trimStr);
+        folderList.push(trimStr);
         detect(fp);
       } else {
-        settings.collectFiles && rawList.push(trimStr);
+        fileList.push(trimStr);
       }
     });
   });
 };
 
-const listProcessing = rawList => {
-  const standard = [];
-  rawList.sort();
-  const splitList = rawList.map(trimStr => {
+const listProcessing = () => {
+  fileList.sort();
+  folderList.sort();
+  const splitList = folderList.map(trimStr => {
     const dirArray = trimStr.split('\\');
     return dirArray;
   });
 
+  const standard = [];
   // 同一ディレクトリが続く場合、2つ目以降を空欄に
   splitList.forEach(a => {
     processedList.push(
@@ -77,21 +79,19 @@ const listProcessing = rawList => {
 };
 
 const writeXLSX = () => {
-  let appendix, list;
-  if (settings.collectFiles) {
-    appendix = 'fileList';
-    list = rawList.map((el, i) => {
-      const num = ('0000' + (i + 1)).slice(-4);
-      return [num, el];
-    });
-  } else {
-    appendix = 'directoryMap';
-    list = processedList;
-  }
-  console.log(`create: ${folderName}_${appendix}.xlsx`.warn);
-  const sheet1 = XLSX.utils.json_to_sheet(list);
-  XLSX.utils.book_append_sheet(workbook, sheet1, 'Dates');
-  XLSX.writeFile(workbook, `./dist/${folderName}_${appendix}.xlsx`, {
+  const list = fileList.map((el, i) => {
+    const num = ('0000' + (i + 1)).slice(-4);
+    return [num, el];
+  });
+  const lists = [processedList, list];
+  const names = ['ディレクトリマップ', 'ファイルリスト'];
+
+  lists.forEach((list, i) => {
+    const sheet = XLSX.utils.json_to_sheet(list);
+    XLSX.utils.book_append_sheet(workbook, sheet, names[i]);
+  });
+  console.log(`create: ${folderName}_content.xlsx`.warn);
+  XLSX.writeFile(workbook, `./dist/${folderName}_content.xlsx`, {
     type: 'xlsx',
   });
   console.log('succeed!'.info);
@@ -99,6 +99,6 @@ const writeXLSX = () => {
 
 detect(dir);
 setTimeout(() => {
-  settings.collectFiles || listProcessing(rawList);
+  listProcessing();
   writeXLSX();
 }, 3000);
