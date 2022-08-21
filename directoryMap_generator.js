@@ -94,8 +94,8 @@ const writeXLSX = (...list) => {
   const lists = [...list];
   const names = ['ディレクトリマップ', 'ファイルリスト'];
 
-  lists.forEach((fileList, i) => {
-    const sheet = XLSX.utils.json_to_sheet(fileList);
+  lists.forEach((list, i) => {
+    const sheet = XLSX.utils.json_to_sheet(list);
     XLSX.utils.book_append_sheet(workbook, sheet, names[i]);
   });
   console.log(`create: ${folderName}_content.xlsx`.warn);
