@@ -42,13 +42,10 @@ const detect = p => {
       if (file.match(reg)) return;
       const fp = path.join(p, file);
       const trimStr = fp.replace(dir, 'root');
-      // const dirArray = trimStr.split('\\');
       if (fs.statSync(fp).isDirectory()) {
-        // settings.collectFiles || rawList.push(dirArray);
         settings.collectFiles || rawList.push(trimStr);
         detect(fp);
       } else {
-        // settings.collectFiles && rawList.push(dirArray);
         settings.collectFiles && rawList.push(trimStr);
       }
     });
