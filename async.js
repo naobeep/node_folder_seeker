@@ -2,9 +2,12 @@ let a = 0;
 const arr = [];
 
 const func1 = () => {
-  console.log(a);
-  arr.push(a);
-  a++;
+  setTimeout(() => {
+    console.log(a);
+    arr.push(a);
+    a++;
+
+  }, 1000);
 };
 
 const promiseFunc = () => {
