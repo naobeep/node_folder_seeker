@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "node directoryMap_generator.js",
+    "array": "node array.js",
     "async": "node async.js"
   },
   "repository": {

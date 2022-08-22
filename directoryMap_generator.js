@@ -66,6 +66,7 @@ const listProcessing = () => {
   list.forEach(el => {
     fileList.push(el);
   });
+  fileList.unshift(['sheetName', 'ファイルリスト']);
 
   // フォルダリストをディレクトリマップ用に成形
   rawFolderList.sort();
@@ -88,15 +89,20 @@ const listProcessing = () => {
       })
     );
   });
+  folderList.unshift(['sheetName', 'ディレクトリマップ']);
 };
 
 const writeXLSX = (...list) => {
   const lists = [...list];
-  const names = ['ディレクトリマップ', 'ファイルリスト'];
+  const sheetNames = [];
+  lists.forEach(list => {
+    const sheetName = list.shift()
+    sheetNames.push(sheetName[1])
+  });
 
   lists.forEach((list, i) => {
     const sheet = XLSX.utils.json_to_sheet(list);
-    XLSX.utils.book_append_sheet(workbook, sheet, names[i]);
+    XLSX.utils.book_append_sheet(workbook, sheet, sheetNames[i]);
   });
   console.log(`create: ${folderName}_content.xlsx`.warn);
   XLSX.writeFile(workbook, `./dist/${folderName}_content.xlsx`, {
@@ -108,5 +114,5 @@ const writeXLSX = (...list) => {
 detect(dir);
 setTimeout(() => {
   listProcessing();
-  writeXLSX(folderList,fileList);
+  writeXLSX(folderList, fileList);
 }, 3000);
