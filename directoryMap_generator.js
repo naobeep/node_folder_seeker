@@ -41,7 +41,7 @@ const detect = p => {
   fs.readdir(p, (err, files) => {
     if (err) console.error(err);
 
-    files.forEach(file => {
+    for (const file of files) {
       if (file.match(reg)) return;
       const fp = path.join(p, file);
       const trimStr = fp.replace(dir, 'root');
@@ -51,7 +51,7 @@ const detect = p => {
       } else {
         rawFileList.push(trimStr);
       }
-    });
+    }
   });
 };
 
@@ -59,13 +59,11 @@ const detect = p => {
 const listProcessing = () => {
   // ファイルリストを2次元配列に加工
   rawFileList.sort();
-  const list = rawFileList.map((el, i) => {
+  for (const [i, item] of rawFileList.entries()) {
     const num = ('0000' + (i + 1)).slice(-4);
-    return [num, el];
-  });
-  list.forEach(el => {
-    fileList.push(el);
-  });
+    const trimName = item.replace('root', '').replaceAll('\\', '/');
+    fileList.push([num, trimName]);
+  }
   fileList.unshift(['sheetName', 'ファイルリスト']);
 
   // フォルダリストをディレクトリマップ用に成形
@@ -96,8 +94,8 @@ const writeXLSX = (...list) => {
   const lists = [...list];
   const sheetNames = [];
   lists.forEach(list => {
-    const sheetName = list.shift()
-    sheetNames.push(sheetName[1])
+    const sheetName = list.shift();
+    sheetNames.push(sheetName[1]);
   });
 
   lists.forEach((list, i) => {
