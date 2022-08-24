@@ -42,7 +42,7 @@ const detect = p => {
     if (err) console.error(err);
 
     for (const file of files) {
-      if (file.match(reg)) return;
+      if (file.match(reg)) continue;
       const fp = path.join(p, file);
       const trimStr = fp.replace(dir, 'root');
       if (fs.statSync(fp).isDirectory()) {
