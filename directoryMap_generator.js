@@ -44,63 +44,65 @@ const detect = p => {
     for (const file of files) {
       if (file.match(reg)) continue;
       const fp = path.join(p, file);
-      const trimStr = fp.replace(dir, 'root');
       if (fs.statSync(fp).isDirectory()) {
-        rawFolderList.push(trimStr);
+        rawFolderList.push(fp);
         detect(fp);
       } else {
-        rawFileList.push(trimStr);
+        rawFileList.push(fp);
       }
     }
   });
 };
 
+const sortFunc = (a, b) => {
+  a = a.toLowerCase();
+  b = b.toLowerCase();
+  if (a < b) return -1;
+  if (a > b) return 1;
+  return 0;
+};
+
 // リストを成形
 const listProcessing = () => {
   // ファイルリストを2次元配列に加工
-  rawFileList.sort();
-  for (const [i, item] of rawFileList.entries()) {
+  rawFileList.sort(sortFunc);
+  for (const [i, fp] of rawFileList.entries()) {
     const num = ('0000' + (i + 1)).slice(-4);
-    const trimName = item.replace('root', '').replaceAll('\\', '/');
-    fileList.push([num, trimName]);
+    const filePath = fp.replace(dir, '').replaceAll('\\', '/');
+    fileList.push([num, filePath]);
   }
-  fileList.unshift(['sheetName', 'ファイルリスト']);
+  fileList.unshift('ファイルリスト');
 
   // フォルダリストをディレクトリマップ用に成形
-  rawFolderList.sort();
-  const splitList = rawFolderList.map(trimStr => {
-    const dirArray = trimStr.split('\\');
-    return dirArray;
-  });
-  // 同一ディレクトリが続く場合、2つ目以降を空欄に
   const standard = [];
-  splitList.forEach(a => {
-    folderList.push(
-      a.map((el, i) => {
-        if (standard[i] === el) {
-          return '';
-        } else {
-          standard[i] = el;
-          standard[i + 1] = '';
-          return el;
-        }
-      })
-    );
-  });
-  folderList.unshift(['sheetName', 'ディレクトリマップ']);
+  rawFolderList.unshift(dir);
+  rawFolderList
+    .sort(sortFunc)
+    .map(fp => fp.replace(dir, 'root').split('\\'))
+    .forEach(a => {
+      folderList.push(
+        // 同一ディレクトリが続く場合、2つ目以降を空欄に
+        a.map((el, i) => {
+          if (standard[i] === el) {
+            return '';
+          } else {
+            standard[i] = el;
+            standard[i + 1] = '';
+            return el;
+          }
+        })
+      );
+    });
+  folderList.unshift('ディレクトリマップ');
 };
 
 const writeXLSX = (...list) => {
   const lists = [...list];
-  const sheetNames = [];
-  lists.forEach(list => {
-    const sheetName = list.shift();
-    sheetNames.push(sheetName[1]);
-  });
 
   lists.forEach((list, i) => {
+    const sheetName = list.shift();
     const sheet = XLSX.utils.json_to_sheet(list);
-    XLSX.utils.book_append_sheet(workbook, sheet, sheetNames[i]);
+    XLSX.utils.book_append_sheet(workbook, sheet, sheetName);
   });
   console.log(`create: ${folderName}_content.xlsx`.warn);
   XLSX.writeFile(workbook, `./dist/${folderName}_content.xlsx`, {
