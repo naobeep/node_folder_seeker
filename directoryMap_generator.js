@@ -27,8 +27,7 @@ await dialog(settings, json);
 
 const workbook = XLSX.utils.book_new();
 const dir = settings.rootDirectory;
-const exclusionString = settings.exclusionString;
-const reg = new RegExp(exclusionString);
+const reg = new RegExp(settings.exclusionString);
 
 const folderName = dir.split('\\').at(-1);
 const rawFileList = [];
@@ -78,7 +77,7 @@ const listProcessing = () => {
   rawFolderList.unshift(dir);
   rawFolderList
     .sort(sortFunc)
-    .map(fp => fp.replace(dir, 'root').split('\\'))
+    .map(fp => fp.replace(dir, folderName).split('\\'))
     .forEach(a => {
       folderList.push(
         // 同一ディレクトリが続く場合、2つ目以降を空欄に
