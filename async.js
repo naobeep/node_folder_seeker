@@ -6,21 +6,21 @@ const func1 = () => {
     console.log(a);
     arr.push(a);
     a++;
-
   }, 1000);
 };
 
 const promiseFunc = () => {
-  if (a < 5) {
-    return new Promise(resolve => {
-      setTimeout(() => {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      if (a < 5) {
         func1();
-        resolve();
-      }, 1000);
-    }).then(() => {
-      return promiseFunc();
-    });
-  }
+        resolve(a);
+      }
+    }, 1000);
+  }).then(a => {
+    console.log({ a });
+    return promiseFunc();
+  });
 };
 
 promiseFunc().then(() => {
