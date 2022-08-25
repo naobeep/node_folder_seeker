@@ -1,28 +1,23 @@
-let a = 0;
+let [a, b] = [0, 0];
 const arr = [];
 
 const func1 = () => {
   setTimeout(() => {
-    console.log(a);
+    console.log({ a });
     arr.push(a);
     a++;
+    a < 5 && func1();
   }, 1000);
 };
 
 const promiseFunc = () => {
   return new Promise(resolve => {
-    setTimeout(() => {
-      if (a < 5) {
-        func1();
-        resolve(a);
-      }
-    }, 1000);
-  }).then(a => {
-    console.log({ a });
-    return promiseFunc();
+    b++;
+    func1();
+    resolve(b);
   });
 };
 
-promiseFunc().then(() => {
-  console.log('done', { arr });
+promiseFunc().then(b => {
+  console.log({ b }, 'done', { arr });
 });
