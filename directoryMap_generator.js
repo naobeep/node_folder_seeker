@@ -36,7 +36,7 @@ const fileList = [];
 const folderList = [];
 
 // フォルダを探索してリストに書き出す
-const detect = p => {
+const seek = p => {
   fs.readdir(p, (err, files) => {
     if (err) console.error(err);
 
@@ -45,7 +45,7 @@ const detect = p => {
       const fp = path.join(p, file);
       if (fs.statSync(fp).isDirectory()) {
         rawFolderList.push(fp);
-        detect(fp);
+        seek(fp);
       } else {
         rawFileList.push(fp);
       }
@@ -110,7 +110,7 @@ const writeXLSX = (...list) => {
   console.log('succeed!'.info);
 };
 
-detect(dir);
+seek(dir);
 setTimeout(() => {
   listProcessing();
   writeXLSX(folderList, fileList);
