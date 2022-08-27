@@ -16,7 +16,7 @@ const pathJudge = fp => {
 };
 
 // フォルダを探索してリストに書き出す
-const detect = p => {
+const seek = p => {
   fs.readdir(p, (err, files) => {
     if (err) console.error(err);
 
@@ -28,7 +28,7 @@ const detect = p => {
         .then(fp => {
           // console.log('resolve', fp);
           rawFolderList.push(fp);
-          detect(fp);
+          seek(fp);
         })
         .catch(fp => {
           // console.log('reject', fp);
@@ -38,7 +38,7 @@ const detect = p => {
   });
 };
 
-detect(dir)
+seek(dir)
 // .then(a => {
 //   console.log('done!', a);
 //   console.log(rawFolderList);
