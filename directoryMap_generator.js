@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import XLSX from 'xlsx';
+// import XLSX from 'xlsx';
+import XLSX from 'xlsx-js-style';
 import colors from 'colors';
 import { readFile } from 'fs/promises';
 import { dialog } from './modules/dialog.js';
@@ -18,6 +19,8 @@ colors.setTheme({
   error: 'red',
 });
 
+console.log(XLSX);
+
 const settings = {};
 const json = JSON.parse(
   await readFile(new URL('./modules/_dialog.json', import.meta.url))
@@ -34,6 +37,10 @@ const rawFileList = [];
 const rawFolderList = [];
 const fileList = [];
 const folderList = [];
+const result = {
+  sheetName: 'ファイルネーム一覧',
+  data: [],
+};
 
 // フォルダを探索してリストに書き出す
 const seek = p => {
@@ -67,10 +74,20 @@ const listProcessing = () => {
   rawFileList.sort(sortFunc);
   for (const [i, fp] of rawFileList.entries()) {
     const num = ('0000' + (i + 1)).slice(-4);
-    const filePath = fp.replace(dir, '').replaceAll('\\', '/');
-    fileList.push([num, filePath]);
+    const filePath = settings.rootPath ? fp.replace(dir, '') : fp;
+    // fileList.push([num, filePath]);
+    const dirArr = filePath.split('\\');
+    const filename = dirArr.at(-1);
+    dirArr.pop();
+
+    result.data.push({
+      num: num,
+      filePath: filePath,
+      folderPath: dirArr,
+      filename: filename,
+    });
   }
-  fileList.unshift('ファイルリスト');
+  // fileList.unshift('ファイルパス一覧');
 
   // フォルダリストをディレクトリマップ用に成形
   const standard = [];

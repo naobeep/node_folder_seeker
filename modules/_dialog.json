@@ -12,6 +12,15 @@
     {
       "category": false,
       "preQuestion": false,
+      "question": "ルートパスで出力しますか？",
+      "determined": "rootPath: ",
+      "default": "y",
+      "type": "boolean",
+      "property": "rootPath"
+    },
+    {
+      "category": false,
+      "preQuestion": false,
       "question": "探索から除外するフォルダ名(複数指定するときは丸括弧で括って|で区切ってください)\n",
       "determined": "exclusionString: ",
       "default": "(.svn|.vscode)",
