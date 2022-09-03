@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import * as path from 'path';
-// import XLSX from 'xlsx';
 import XLSX from 'xlsx-js-style';
 import colors from 'colors';
 import { readFile } from 'fs/promises';
@@ -19,8 +18,6 @@ colors.setTheme({
   error: 'red',
 });
 
-console.log(XLSX);
-
 const settings = {};
 const json = JSON.parse(
   await readFile(new URL('./modules/_dialog.json', import.meta.url))
@@ -31,16 +28,21 @@ await dialog(settings, json);
 const workbook = XLSX.utils.book_new();
 const dir = settings.rootDirectory;
 const reg = new RegExp(settings.exclusionString);
+const delimiter = settings.rootPath ? '/' : '\\';
 
-const folderName = dir.split('\\').at(-1);
+const targetFolder = dir.split('\\').at(-1);
 const rawFileList = [];
 const rawFolderList = [];
-const fileList = [];
-const folderList = [];
-const result = {
-  sheetName: 'ファイルネーム一覧',
-  data: [],
-};
+const sheetData = [
+  {
+    sheetName: 'ファイルネーム一覧',
+    data: [],
+  },
+  {
+    sheetName: 'ディレクトリマップ',
+    data: [],
+  },
+];
 
 // フォルダを探索してリストに書き出す
 const seek = p => {
@@ -74,29 +76,36 @@ const listProcessing = () => {
   rawFileList.sort(sortFunc);
   for (const [i, fp] of rawFileList.entries()) {
     const num = ('0000' + (i + 1)).slice(-4);
-    const filePath = settings.rootPath ? fp.replace(dir, '') : fp;
-    // fileList.push([num, filePath]);
-    const dirArr = filePath.split('\\');
+    const filePath = settings.rootPath
+      ? fp.replace(dir, '').replaceAll('\\', '/')
+      : fp;
+    const dirArr = filePath.split(delimiter);
     const filename = dirArr.at(-1);
     dirArr.pop();
+    const folderPath =
+      (settings.rootPath ? '/' : '') +
+      dirArr.reduce((accu, curr) => accu + curr + delimiter);
+    const ext = filename.split('.').at(-1);
 
-    result.data.push({
-      num: num,
-      filePath: filePath,
-      folderPath: dirArr,
-      filename: filename,
+    sheetData[0].data.push({
+      'No.': num,
+      ext,
+      filePath,
+      folderPath,
+      filename,
+      check: '',
+      note: '',
     });
   }
-  // fileList.unshift('ファイルパス一覧');
 
   // フォルダリストをディレクトリマップ用に成形
   const standard = [];
   rawFolderList.unshift(dir);
   rawFolderList
     .sort(sortFunc)
-    .map(fp => fp.replace(dir, folderName).split('\\'))
+    .map(fp => fp.replace(dir, targetFolder).split('\\'))
     .forEach(a => {
-      folderList.push(
+      sheetData[1].data.push(
         // 同一ディレクトリが続く場合、2つ目以降を空欄に
         a.map((el, i) => {
           if (standard[i] === el) {
@@ -109,19 +118,20 @@ const listProcessing = () => {
         })
       );
     });
-  folderList.unshift('ディレクトリマップ');
 };
 
-const writeXLSX = (...list) => {
-  const lists = [...list];
+const writeXLSX = sheetData => {
+  // ファイル一覧
+  // const sheet1 = XLSX.utils.json_to_sheet(sheetData[0].data)
 
-  lists.forEach((list, i) => {
-    const sheetName = list.shift();
-    const sheet = XLSX.utils.json_to_sheet(list);
+  sheetData.forEach(sheetObj => {
+    const sheetName = sheetObj.sheetName;
+    const sheet = XLSX.utils.json_to_sheet(sheetObj.data);
+    console.log(sheet['!ref']);
     XLSX.utils.book_append_sheet(workbook, sheet, sheetName);
   });
-  console.log(`create: ${folderName}_content.xlsx`.warn);
-  XLSX.writeFile(workbook, `./dist/${folderName}_content.xlsx`, {
+  console.log(`create: ${targetFolder}_content.xlsx`.warn);
+  XLSX.writeFile(workbook, `./dist/${targetFolder}_content.xlsx`, {
     type: 'xlsx',
   });
   console.log('succeed!'.info);
@@ -130,5 +140,5 @@ const writeXLSX = (...list) => {
 seek(dir);
 setTimeout(() => {
   listProcessing();
-  writeXLSX(folderList, fileList);
+  writeXLSX(sheetData);
 }, 3000);
