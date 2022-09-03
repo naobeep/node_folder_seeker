@@ -29,8 +29,9 @@ await dialog(settings, json);
 const workbook = XLSX.utils.book_new();
 const dir = settings.rootDirectory;
 const reg = new RegExp(settings.exclusionString);
+const delimiter = settings.rootPath ? '/' : '\\';
 
-const folderName = dir.split('\\').at(-1);
+const targetFolder = dir.split('\\').at(-1);
 const rawFileList = [];
 const rawFolderList = [];
 const sheetData = [
@@ -76,11 +77,15 @@ const listProcessing = () => {
   rawFileList.sort(sortFunc);
   for (const [i, fp] of rawFileList.entries()) {
     const num = ('0000' + (i + 1)).slice(-4);
-    const filePath = settings.rootPath ? fp.replace(dir, '') : fp;
-    const dirArr = filePath.split('\\');
+    const filePath = settings.rootPath
+      ? fp.replace(dir, '').replaceAll('\\', '/')
+      : fp;
+    const dirArr = filePath.split(delimiter);
     const filename = dirArr.at(-1);
     dirArr.pop();
-    const folderPath = dirArr.reduce((accu, curr) => accu + curr + '\\');
+    const folderPath =
+      (settings.rootPath ? '/' : '') +
+      dirArr.reduce((accu, curr) => accu + curr + delimiter);
     const ext = filename.split('.').at(-1);
 
     sheetData[0].data.push({
@@ -99,7 +104,7 @@ const listProcessing = () => {
   rawFolderList.unshift(dir);
   rawFolderList
     .sort(sortFunc)
-    .map(fp => fp.replace(dir, folderName).split('\\'))
+    .map(fp => fp.replace(dir, targetFolder).split('\\'))
     .forEach(a => {
       sheetData[1].data.push(
         // 同一ディレクトリが続く場合、2つ目以降を空欄に
@@ -126,8 +131,8 @@ const writeXLSX = sheetData => {
     console.log(sheet['!ref']);
     XLSX.utils.book_append_sheet(workbook, sheet, sheetName);
   });
-  console.log(`create: ${folderName}_content.xlsx`.warn);
-  XLSX.writeFile(workbook, `./dist/${folderName}_content.xlsx`, {
+  console.log(`create: ${targetFolder}_content.xlsx`.warn);
+  XLSX.writeFile(workbook, `./dist/${targetFolder}_content.xlsx`, {
     type: 'xlsx',
   });
   console.log('succeed!'.info);
