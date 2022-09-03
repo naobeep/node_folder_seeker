@@ -1,17 +1,36 @@
 import * as fs from 'fs';
 import * as path from 'path';
 // import XLSX from 'xlsx';
+import XLSX from 'xlsx-js-style';
+import colors from 'colors';
 import { readFile } from 'fs/promises';
+import { dialog } from './modules/dialog.js';
 
-const settings = {
-  rootPath: false,
-  rootDirectory: 'C:\\Users\\naomu\\OneDrive\\デスクトップ\\会議用背景',
-  exclusionString: '(.svn|.vscode)',
-};
+colors.setTheme({
+  silly: 'rainbow',
+  input: 'grey',
+  verbose: 'cyan',
+  prompt: 'grey',
+  info: 'green',
+  data: 'grey',
+  help: 'cyan',
+  warn: 'yellow',
+  debug: 'blue',
+  error: 'red',
+});
 
+const settings = {};
+const json = JSON.parse(
+  await readFile(new URL('./modules/_dialog.json', import.meta.url))
+);
+
+await dialog(settings, json);
+
+const workbook = XLSX.utils.book_new();
 const dir = settings.rootDirectory;
 const reg = new RegExp(settings.exclusionString);
 
+const folderName = dir.split('\\').at(-1);
 const rawFileList = [];
 const rawFolderList = [];
 const result = [
@@ -51,15 +70,7 @@ const sortFunc = (a, b) => {
   return 0;
 };
 
-const strComposition = arr => {
-  const str = arr.reduce((accu, curr) => {
-    console.log(accu);
-    accu + curr + '\\';
-  });
-  return str;
-};
-
-// リストを作成
+// リストを成形
 const listProcessing = () => {
   // ファイルリストを2次元配列に加工
   rawFileList.sort(sortFunc);
@@ -69,22 +80,55 @@ const listProcessing = () => {
     const dirArr = filePath.split('\\');
     const filename = dirArr.at(-1);
     dirArr.pop();
-    const folderPath = dirArr.reduce((accu, curr) => {
-      return accu + curr + '\\';
-    });
-    // console.log(folderPath);
+    const folderPath = dirArr.reduce((accu, curr) => accu + curr + '\\');
 
     result[0].data.push({
-      num,
+      'No.': num,
       filePath,
       folderPath,
       filename,
+      check: '',
+      '備考': '',
     });
   }
+
+  // フォルダリストをディレクトリマップ用に成形
+  const standard = [];
+  rawFolderList.unshift(dir);
+  rawFolderList
+    .sort(sortFunc)
+    .map(fp => fp.replace(dir, folderName).split('\\'))
+    .forEach(a => {
+      result[1].data.push(
+        // 同一ディレクトリが続く場合、2つ目以降を空欄に
+        a.map((el, i) => {
+          if (standard[i] === el) {
+            return '';
+          } else {
+            standard[i] = el;
+            standard[i + 1] = '';
+            return el;
+          }
+        })
+      );
+    });
+};
+
+const writeXLSX = result => {
+  result.forEach(obj => {
+    const sheetName = obj.sheetName;
+    const sheet = XLSX.utils.json_to_sheet(obj.data);
+    XLSX.utils.book_append_sheet(workbook, sheet, sheetName);
+  });
+  console.log(`create: ${folderName}_content.xlsx`.warn);
+  XLSX.writeFile(workbook, `./dist/${folderName}_content.xlsx`, {
+    type: 'xlsx',
+  });
+  console.log('succeed!'.info);
 };
 
 seek(dir);
 setTimeout(() => {
   listProcessing();
-  console.log(result[0].data);
+  writeXLSX(result);
 }, 3000);
