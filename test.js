@@ -33,7 +33,7 @@ const reg = new RegExp(settings.exclusionString);
 const folderName = dir.split('\\').at(-1);
 const rawFileList = [];
 const rawFolderList = [];
-const result = [
+const sheetData = [
   {
     sheetName: 'ファイルネーム一覧',
     data: [],
@@ -81,14 +81,16 @@ const listProcessing = () => {
     const filename = dirArr.at(-1);
     dirArr.pop();
     const folderPath = dirArr.reduce((accu, curr) => accu + curr + '\\');
+    const ext = filename.split('.').at(-1);
 
-    result[0].data.push({
+    sheetData[0].data.push({
       'No.': num,
+      ext,
       filePath,
       folderPath,
       filename,
       check: '',
-      '備考': '',
+      note: '',
     });
   }
 
@@ -99,7 +101,7 @@ const listProcessing = () => {
     .sort(sortFunc)
     .map(fp => fp.replace(dir, folderName).split('\\'))
     .forEach(a => {
-      result[1].data.push(
+      sheetData[1].data.push(
         // 同一ディレクトリが続く場合、2つ目以降を空欄に
         a.map((el, i) => {
           if (standard[i] === el) {
@@ -114,10 +116,14 @@ const listProcessing = () => {
     });
 };
 
-const writeXLSX = result => {
-  result.forEach(obj => {
-    const sheetName = obj.sheetName;
-    const sheet = XLSX.utils.json_to_sheet(obj.data);
+const writeXLSX = sheetData => {
+  // ファイル一覧
+  // const sheet1 = XLSX.utils.json_to_sheet(sheetData[0].data)
+
+  sheetData.forEach(sheetObj => {
+    const sheetName = sheetObj.sheetName;
+    const sheet = XLSX.utils.json_to_sheet(sheetObj.data);
+    console.log(sheet['!ref']);
     XLSX.utils.book_append_sheet(workbook, sheet, sheetName);
   });
   console.log(`create: ${folderName}_content.xlsx`.warn);
@@ -130,5 +136,5 @@ const writeXLSX = result => {
 seek(dir);
 setTimeout(() => {
   listProcessing();
-  writeXLSX(result);
+  writeXLSX(sheetData);
 }, 3000);
