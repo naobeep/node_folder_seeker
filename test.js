@@ -5,6 +5,7 @@ import XLSX from 'xlsx-js-style';
 import colors from 'colors';
 import { readFile } from 'fs/promises';
 import { dialog } from './modules/dialog.js';
+import { extColorCode } from "./modules/extColorCode.js";
 
 colors.setTheme({
   silly: 'rainbow',
@@ -18,35 +19,6 @@ colors.setTheme({
   debug: 'blue',
   error: 'red',
 });
-
-const extColorCode = {
-  // css: '2965f1',
-  doc: '185abd',
-  docx: '185abd',
-  html: 'f06529',
-  // js: 'f0db4f',
-  json: 'f0db4f',
-  md: '42a2f0',
-  msg: '0078d4',
-  one: '7719aa',
-  ppt: 'c43e1c',
-  pptx: 'c43e1c',
-  // ts: '007acc',
-  txt: 'fffffff',
-  vsdx: '3955a3',
-  xls: '107c41',
-  xlsx: '107c41',
-  pdf: 'f40f02',
-  php: '787cb5',
-  jpg: '25a196',
-  jpeg: '25a196',
-  png: '25a196',
-  gif: '25a196',
-  // sass: 'cd6799',
-  // scss: 'cd6799',
-  // svg: 'fbb000',
-  zip: 'afb42b',
-};
 
 const settings = {};
 const json = JSON.parse(
@@ -115,7 +87,7 @@ const listProcessing = () => {
     dirArr.pop();
     const folderPath =
       rootPrefix + dirArr.reduce((accu, curr) => accu + curr + delimiter);
-    const ext = filename.split('.').at(-1);
+    const ext = filename.split('.').at(-1).toLowerCase();
 
     sheetData[0].data.push({
       'No.': num,
@@ -164,8 +136,11 @@ const writeXLSX = sheetData => {
         };
         if (extColorCode.hasOwnProperty(row.ext)) {
           sheet[`B${i + 2}`].s = {
-            font: { color: { rgb: 'ffffff' }, bold: true },
-            fill: { fgColor: { rgb: extColorCode[row.ext] } },
+            font: {
+              color: { rgb: extColorCode[row.ext].fontColor },
+              bold: true,
+            },
+            fill: { fgColor: { rgb: extColorCode[row.ext].bgColor } },
           };
         }
         // console.log(row.ext, extColorCode.hasOwnProperty(row.ext));
