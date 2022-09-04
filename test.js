@@ -166,19 +166,17 @@ const toggleBg = (arg, previousD, toggleColor) => {
 };
 
 // 「ファイルネーム一覧」シートにスタイルを設定
-const filenameStyle = (sheetObj, sheet) => {
-  if (sheetObj.sheetName === 'ファイルネーム一覧') {
-    let previousD = sheet['D1'].v,
-      toggleColor = 1;
-    for (const [i, row] of sheetObj.data.entries()) {
-      const arg = { sheet, i, row, previousD, toggleColor };
+const filenameStyle = (sheet, data) => {
+  let previousD = sheet['D1'].v,
+    toggleColor = 1;
+  for (const [i, row] of data.entries()) {
+    const arg = { sheet, i, row, previousD, toggleColor };
 
-      // D列（folderPath）に背景色を設定
-      [previousD, toggleColor] = toggleBg(arg, previousD, toggleColor);
+    // D列（folderPath）に背景色を設定
+    [previousD, toggleColor] = toggleBg(arg, previousD, toggleColor);
 
-      // B列（ext）に背景色を設定
-      extStyles(arg);
-    }
+    // B列（ext）に背景色を設定
+    extStyles(arg);
   }
 };
 
@@ -186,10 +184,13 @@ const writeXLSX = sheetData => {
   // ファイル一覧
   sheetData.forEach(sheetObj => {
     const sheetName = sheetObj.sheetName;
+    const data = sheetObj.data;
     const sheet = XLSX.utils.json_to_sheet(sheetObj.data);
 
     // 「ファイルネーム一覧」シートにスタイルを設定
-    filenameStyle(sheetObj, sheet);
+    if (sheetName === 'ファイルネーム一覧') {
+      filenameStyle(sheet, data);
+    }
 
     XLSX.utils.book_append_sheet(workbook, sheet, sheetName);
   });
