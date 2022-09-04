@@ -4,7 +4,6 @@ import XLSX from 'xlsx-js-style';
 import colors from 'colors';
 import { readFile } from 'fs/promises';
 import { dialog } from './modules/dialog.js';
-import { extColorCode } from './modules/extColorCode.js';
 
 colors.setTheme({
   silly: 'rainbow',
@@ -23,6 +22,9 @@ const settings = {};
 const json = JSON.parse(
   await readFile(new URL('./modules/_dialog.json', import.meta.url))
 );
+const extColorCode = JSON.parse(
+  await readFile(new URL('./modules/extColorCode.json', import.meta.url))
+);
 
 await dialog(settings, json);
 
@@ -31,7 +33,7 @@ const dir = settings.rootDirectory;
 const reg = new RegExp(settings.exclusionString);
 const rootPrefix = settings.rootPath ? '/' : '';
 const delimiter = settings.rootPath ? '/' : '\\';
-const stripe = ['ffffff', 'e0e0e0'];
+const stripe = ['ffffff', 'eeeeee'];
 
 const targetFolder = dir.split('\\').at(-1);
 const rawFileList = [];
@@ -65,6 +67,7 @@ const seek = p => {
   });
 };
 
+// リストを大文字小文字を区別せずに並べ替え
 const sortFunc = (a, b) => {
   a = a.toLowerCase();
   b = b.toLowerCase();
@@ -122,46 +125,72 @@ const listProcessing = () => {
     });
 };
 
+// 拡張子に合わせてセルの背景色を変更
+const extStyles = arg => {
+  // B列（ext）に背景色を設定
+  if (extColorCode.hasOwnProperty(arg.row.ext)) {
+    arg.sheet[`B${arg.i + 2}`].s = {
+      font: {
+        color: { rgb: extColorCode[arg.row.ext].fontColor },
+        bold: true,
+      },
+      fill: { fgColor: { rgb: extColorCode[arg.row.ext].bgColor } },
+      alignment: {
+        horizontal: 'center',
+        vertical: 'center',
+      },
+    };
+  } else {
+    arg.sheet[`B${arg.i + 2}`].s = {
+      alignment: {
+        horizontal: 'center',
+        vertical: 'center',
+      },
+    };
+  }
+};
+
+// 同一フォルダのブロックごとに背景色をトグル
+const toggleBg = (arg, previousD, toggleColor) => {
+  // D列（folderPath）に背景色を設定
+  const currentD = arg.sheet[`D${arg.i + 2}`].v;
+  if (previousD !== currentD) {
+    toggleColor = toggleColor === 0 ? 1 : 0;
+  }
+  arg.sheet[`D${arg.i + 2}`].s = {
+    alignment: { wrapText: true },
+    fill: { fgColor: { rgb: stripe[toggleColor] } },
+  };
+  previousD = currentD;
+  return [previousD, toggleColor];
+};
+
+// 「ファイルネーム一覧」シートにスタイルを設定
+const filenameStyle = (sheetObj, sheet) => {
+  if (sheetObj.sheetName === 'ファイルネーム一覧') {
+    let previousD = sheet['D1'].v,
+      toggleColor = 1;
+    for (const [i, row] of sheetObj.data.entries()) {
+      const arg = { sheet, i, row, previousD, toggleColor };
+
+      // D列（folderPath）に背景色を設定
+      [previousD, toggleColor] = toggleBg(arg, previousD, toggleColor);
+
+      // B列（ext）に背景色を設定
+      extStyles(arg);
+    }
+  }
+};
+
 const writeXLSX = sheetData => {
   // ファイル一覧
   sheetData.forEach(sheetObj => {
     const sheetName = sheetObj.sheetName;
     const sheet = XLSX.utils.json_to_sheet(sheetObj.data);
-    if (sheetName === 'ファイルネーム一覧') {
-      let previousD = sheet['D1'].v,
-        toggleColor = 1;
-      for (const [i, row] of sheetObj.data.entries()) {
-        const currentD = sheet[`D${i + 2}`].v;
-        if (previousD !== currentD) {
-          toggleColor = toggleColor === 0 ? 1 : 0;
-        }
-        sheet[`D${i + 2}`].s = {
-          alignment: { wrapText: true },
-          fill: { fgColor: { rgb: stripe[toggleColor] } },
-        };
-        if (extColorCode.hasOwnProperty(row.ext)) {
-          sheet[`B${i + 2}`].s = {
-            font: {
-              color: { rgb: extColorCode[row.ext].fontColor },
-              bold: true,
-            },
-            fill: { fgColor: { rgb: extColorCode[row.ext].bgColor } },
-            alignment: {
-              horizontal: 'center',
-              vertical: 'center',
-            },
-          };
-        } else {
-          sheet[`B${i + 2}`].s = {
-            alignment: {
-              horizontal: 'center',
-              vertical: 'center',
-            },
-          };
-        }
-        previousD = currentD;
-      }
-    }
+
+    // 「ファイルネーム一覧」シートにスタイルを設定
+    filenameStyle(sheetObj, sheet);
+
     XLSX.utils.book_append_sheet(workbook, sheet, sheetName);
   });
   console.log(`create: ${targetFolder}_content.xlsx`.warn);
@@ -175,4 +204,4 @@ seek(dir);
 setTimeout(() => {
   listProcessing();
   writeXLSX(sheetData);
-}, 3000);
+}, 10000);
