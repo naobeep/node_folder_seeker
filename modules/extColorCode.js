@@ -24,8 +24,8 @@ export const extColorCode = {
     bgColor: 'f0db4f',
   },
   md: {
-    fontColor: '333333',
-    bgColor: '42a2f0',
+    fontColor: 'ffffff',
+    bgColor: '000000',
   },
   msg: {
     fontColor: 'ffffff',

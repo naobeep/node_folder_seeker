@@ -140,6 +140,10 @@ const writeXLSX = sheetData => {
             fill: { fgColor: { rgb: extColorCode[row.ext].bgColor } },
             alignment: { horizontal: 'center' },
           };
+        } else {
+          sheet[`B${i + 2}`].s = {
+            alignment: { horizontal: 'center' },
+          };
         }
       }
     }
