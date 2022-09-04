@@ -31,6 +31,7 @@ const dir = settings.rootDirectory;
 const reg = new RegExp(settings.exclusionString);
 const rootPrefix = settings.rootPath ? '/' : '';
 const delimiter = settings.rootPath ? '/' : '\\';
+const stripe = ['ffffff', 'e0e0e0'];
 
 const targetFolder = dir.split('\\').at(-1);
 const rawFileList = [];
@@ -127,9 +128,16 @@ const writeXLSX = sheetData => {
     const sheetName = sheetObj.sheetName;
     const sheet = XLSX.utils.json_to_sheet(sheetObj.data);
     if (sheetName === 'ファイルネーム一覧') {
+      let previousD = sheet['D1'].v,
+        toggleColor = 1;
       for (const [i, row] of sheetObj.data.entries()) {
+        const currentD = sheet[`D${i + 2}`].v;
+        if (previousD !== currentD) {
+          toggleColor = toggleColor === 0 ? 1 : 0;
+        }
         sheet[`D${i + 2}`].s = {
           alignment: { wrapText: true },
+          fill: { fgColor: { rgb: stripe[toggleColor] } },
         };
         if (extColorCode.hasOwnProperty(row.ext)) {
           sheet[`B${i + 2}`].s = {
@@ -138,8 +146,20 @@ const writeXLSX = sheetData => {
               bold: true,
             },
             fill: { fgColor: { rgb: extColorCode[row.ext].bgColor } },
+            alignment: {
+              horizontal: 'center',
+              vertical: 'center',
+            },
+          };
+        } else {
+          sheet[`B${i + 2}`].s = {
+            alignment: {
+              horizontal: 'center',
+              vertical: 'center',
+            },
           };
         }
+        previousD = currentD;
       }
     }
     XLSX.utils.book_append_sheet(workbook, sheet, sheetName);

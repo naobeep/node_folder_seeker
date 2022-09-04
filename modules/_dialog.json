@@ -23,7 +23,7 @@
       "preQuestion": false,
       "question": "探索から除外するフォルダ名(複数指定するときは丸括弧で括って|で区切ってください)\n",
       "determined": "exclusionString: ",
-      "default": "(.svn|.vscode|.git|.gitignore)",
+      "default": "(.svn|.vscode|.git|.gitignore|node_modules)",
       "type": "string",
       "property": "exclusionString"
     }
