@@ -148,10 +148,12 @@ const writeXLSX = sheetData => {
     const sheet = XLSX.utils.json_to_sheet(sheetObj.data);
     if (sheetName === 'ファイルネーム一覧') {
       for (const [i, row] of sheetObj.data.entries()) {
-        sheet[`D${i + 2}`].s.alignment.wrapText = true;
+        sheet[`D${i + 2}`].s = {
+          alignment: { wrapText: true },
+        };
         if (extColorCode.hasOwnProperty(row.ext)) {
           sheet[`B${i + 2}`].s = {
-            font: { color: { rgb: 'ffffff' } },
+            font: { color: { rgb: 'ffffff' }, bold: true },
             fill: { fgColor: { rgb: extColorCode[row.ext] } },
           };
         }
