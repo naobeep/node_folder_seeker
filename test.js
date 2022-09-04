@@ -19,6 +19,24 @@ colors.setTheme({
   error: 'red',
 });
 
+const extColorCode = {
+  css: '2965f1',
+  doc: '185abd',
+  docx: '185abd',
+  html: 'f06529',
+  js: 'f0db4f',
+  msg: '0078d4',
+  one: '7719aa',
+  ppt: 'c43e1c',
+  pptx: 'c43e1c',
+  ts: '007acc',
+  txt: 'fffffff',
+  vsdx: '3955a3',
+  xls: '107c41',
+  xlsx: '107c41',
+  jpg: 'FF0000',
+};
+
 const settings = {};
 const json = JSON.parse(
   await readFile(new URL('./modules/_dialog.json', import.meta.url))
@@ -29,6 +47,7 @@ await dialog(settings, json);
 const workbook = XLSX.utils.book_new();
 const dir = settings.rootDirectory;
 const reg = new RegExp(settings.exclusionString);
+const rootPrefix = settings.rootPath ? '/' : '';
 const delimiter = settings.rootPath ? '/' : '\\';
 
 const targetFolder = dir.split('\\').at(-1);
@@ -84,8 +103,7 @@ const listProcessing = () => {
     const filename = dirArr.at(-1);
     dirArr.pop();
     const folderPath =
-      (settings.rootPath ? '/' : '') +
-      dirArr.reduce((accu, curr) => accu + curr + delimiter);
+      rootPrefix + dirArr.reduce((accu, curr) => accu + curr + delimiter);
     const ext = filename.split('.').at(-1);
 
     sheetData[0].data.push({
@@ -128,7 +146,18 @@ const writeXLSX = sheetData => {
   sheetData.forEach(sheetObj => {
     const sheetName = sheetObj.sheetName;
     const sheet = XLSX.utils.json_to_sheet(sheetObj.data);
-    console.log(sheet['!ref']);
+    if (sheetName === 'ファイルネーム一覧') {
+      for (const [i, row] of sheetObj.data.entries()) {
+        sheet[`D${i + 2}`].s.alignment.wrapText = true;
+        if (extColorCode.hasOwnProperty(row.ext)) {
+          sheet[`B${i + 2}`].s = {
+            font: { color: { rgb: 'ffffff' } },
+            fill: { fgColor: { rgb: extColorCode[row.ext] } },
+          };
+        }
+        // console.log(row.ext, extColorCode.hasOwnProperty(row.ext));
+      }
+    }
     XLSX.utils.book_append_sheet(workbook, sheet, sheetName);
   });
   console.log(`create: ${targetFolder}_content.xlsx`.warn);
