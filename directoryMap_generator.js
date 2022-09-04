@@ -4,6 +4,7 @@ import XLSX from 'xlsx-js-style';
 import colors from 'colors';
 import { readFile } from 'fs/promises';
 import { dialog } from './modules/dialog.js';
+import { extColorCode } from './modules/extColorCode.js';
 
 colors.setTheme({
   silly: 'rainbow',
@@ -28,6 +29,7 @@ await dialog(settings, json);
 const workbook = XLSX.utils.book_new();
 const dir = settings.rootDirectory;
 const reg = new RegExp(settings.exclusionString);
+const rootPrefix = settings.rootPath ? '/' : '';
 const delimiter = settings.rootPath ? '/' : '\\';
 
 const targetFolder = dir.split('\\').at(-1);
@@ -72,7 +74,7 @@ const sortFunc = (a, b) => {
 
 // リストを成形
 const listProcessing = () => {
-  // ファイルリストを2次元配列に加工
+  // ファイルリストをファイル一覧シート用に加工
   rawFileList.sort(sortFunc);
   for (const [i, fp] of rawFileList.entries()) {
     const num = ('0000' + (i + 1)).slice(-4);
@@ -83,9 +85,8 @@ const listProcessing = () => {
     const filename = dirArr.at(-1);
     dirArr.pop();
     const folderPath =
-      (settings.rootPath ? '/' : '') +
-      dirArr.reduce((accu, curr) => accu + curr + delimiter);
-    const ext = filename.split('.').at(-1);
+      rootPrefix + dirArr.reduce((accu, curr) => accu + curr + delimiter);
+    const ext = filename.split('.').at(-1).toLowerCase();
 
     sheetData[0].data.push({
       'No.': num,
@@ -98,7 +99,7 @@ const listProcessing = () => {
     });
   }
 
-  // フォルダリストをディレクトリマップ用に成形
+  // フォルダリストをディレクトリマップシート用に成形
   const standard = [];
   rawFolderList.unshift(dir);
   rawFolderList
@@ -122,12 +123,25 @@ const listProcessing = () => {
 
 const writeXLSX = sheetData => {
   // ファイル一覧
-  // const sheet1 = XLSX.utils.json_to_sheet(sheetData[0].data)
-
   sheetData.forEach(sheetObj => {
     const sheetName = sheetObj.sheetName;
     const sheet = XLSX.utils.json_to_sheet(sheetObj.data);
-    console.log(sheet['!ref']);
+    if (sheetName === 'ファイルネーム一覧') {
+      for (const [i, row] of sheetObj.data.entries()) {
+        sheet[`D${i + 2}`].s = {
+          alignment: { wrapText: true },
+        };
+        if (extColorCode.hasOwnProperty(row.ext)) {
+          sheet[`B${i + 2}`].s = {
+            font: {
+              color: { rgb: extColorCode[row.ext].fontColor },
+              bold: true,
+            },
+            fill: { fgColor: { rgb: extColorCode[row.ext].bgColor } },
+          };
+        }
+      }
+    }
     XLSX.utils.book_append_sheet(workbook, sheet, sheetName);
   });
   console.log(`create: ${targetFolder}_content.xlsx`.warn);

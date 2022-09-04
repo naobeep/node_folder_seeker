@@ -1,11 +1,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
-// import XLSX from 'xlsx';
 import XLSX from 'xlsx-js-style';
 import colors from 'colors';
 import { readFile } from 'fs/promises';
 import { dialog } from './modules/dialog.js';
-import { extColorCode } from "./modules/extColorCode.js";
+import { extColorCode } from './modules/extColorCode.js';
 
 colors.setTheme({
   silly: 'rainbow',
@@ -75,7 +74,7 @@ const sortFunc = (a, b) => {
 
 // リストを成形
 const listProcessing = () => {
-  // ファイルリストを2次元配列に加工
+  // ファイルリストをファイル一覧シート用に加工
   rawFileList.sort(sortFunc);
   for (const [i, fp] of rawFileList.entries()) {
     const num = ('0000' + (i + 1)).slice(-4);
@@ -100,7 +99,7 @@ const listProcessing = () => {
     });
   }
 
-  // フォルダリストをディレクトリマップ用に成形
+  // フォルダリストをディレクトリマップシート用に成形
   const standard = [];
   rawFolderList.unshift(dir);
   rawFolderList
@@ -124,8 +123,6 @@ const listProcessing = () => {
 
 const writeXLSX = sheetData => {
   // ファイル一覧
-  // const sheet1 = XLSX.utils.json_to_sheet(sheetData[0].data)
-
   sheetData.forEach(sheetObj => {
     const sheetName = sheetObj.sheetName;
     const sheet = XLSX.utils.json_to_sheet(sheetObj.data);
@@ -143,7 +140,6 @@ const writeXLSX = sheetData => {
             fill: { fgColor: { rgb: extColorCode[row.ext].bgColor } },
           };
         }
-        // console.log(row.ext, extColorCode.hasOwnProperty(row.ext));
       }
     }
     XLSX.utils.book_append_sheet(workbook, sheet, sheetName);
