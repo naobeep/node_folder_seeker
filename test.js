@@ -138,6 +138,7 @@ const writeXLSX = sheetData => {
               bold: true,
             },
             fill: { fgColor: { rgb: extColorCode[row.ext].bgColor } },
+            alignment: { horizontal: 'center' },
           };
         }
       }

@@ -24,7 +24,7 @@ export const extColorCode = {
     bgColor: 'f0db4f',
   },
   md: {
-    fontColor: 'ffffff',
+    fontColor: '333333',
     bgColor: '42a2f0',
   },
   msg: {
@@ -44,7 +44,7 @@ export const extColorCode = {
     bgColor: '7719aa',
   },
   ps1: {
-    fontColor: '333333',
+    fontColor: 'ffffff',
     bgColor: '0377bd',
   },
   psd: {
