@@ -84,11 +84,8 @@ const listProcessing = () => {
     const filePath = settings.rootDirectory.match(/(c:\\Users|e:\\|h:\\)/)
       ? fp.replace(dir, '').replaceAll('\\', '/')
       : fp;
-    const dirArr = filePath.split(delimiter);
-    const filename = dirArr.at(-1);
-    dirArr.pop();
-    const folderPath =
-      delimiter + dirArr.reduce((accu, curr) => accu + curr + delimiter);
+    const filename = fp.split('\\').at(-1);
+    const folderPath = filePath.slice(0, filePath.lastIndexOf(delimiter) + 1);
     const ext = filename.split('.').at(-1).toLowerCase();
 
     sheetData[0].data.push({
