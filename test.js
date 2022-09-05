@@ -4,6 +4,7 @@ import XLSX from 'xlsx-js-style';
 import colors from 'colors';
 import { readFile } from 'fs/promises';
 import { dialog } from './modules/dialog.js';
+import { extColorCode } from './modules/_extColorCode.js';
 
 colors.setTheme({
   silly: 'rainbow',
@@ -22,17 +23,14 @@ const settings = {};
 const json = JSON.parse(
   await readFile(new URL('./modules/_dialog.json', import.meta.url))
 );
-const extColorCode = JSON.parse(
-  await readFile(new URL('./modules/extColorCode.json', import.meta.url))
-);
 
 await dialog(settings, json);
+
 
 const workbook = XLSX.utils.book_new();
 const dir = settings.rootDirectory;
 const reg = new RegExp(settings.exclusionString);
-const rootPrefix = settings.rootPath ? '/' : '';
-const delimiter = settings.rootPath ? '/' : '\\';
+const delimiter = settings.rootDirectory.match(/(c:\\Users|e:\\|h:\\)/) ? '/' : '\\';
 const stripe = ['ffffff', 'eeeeee'];
 
 const targetFolder = dir.split('\\').at(-1);
@@ -82,14 +80,14 @@ const listProcessing = () => {
   rawFileList.sort(sortFunc);
   for (const [i, fp] of rawFileList.entries()) {
     const num = ('0000' + (i + 1)).slice(-4);
-    const filePath = settings.rootPath
+    const filePath = settings.rootDirectory.match(/(c:\\Users|e:\\|h:\\)/)
       ? fp.replace(dir, '').replaceAll('\\', '/')
       : fp;
     const dirArr = filePath.split(delimiter);
     const filename = dirArr.at(-1);
     dirArr.pop();
     const folderPath =
-      rootPrefix + dirArr.reduce((accu, curr) => accu + curr + delimiter);
+      delimiter + dirArr.reduce((accu, curr) => accu + curr + delimiter);
     const ext = filename.split('.').at(-1).toLowerCase();
 
     sheetData[0].data.push({
@@ -158,7 +156,7 @@ const toggleBg = (arg, previousD, toggleColor) => {
     toggleColor = toggleColor === 0 ? 1 : 0;
   }
   arg.sheet[`D${arg.i + 2}`].s = {
-    alignment: { wrapText: true },
+    // alignment: { wrapText: true },
     fill: { fgColor: { rgb: stripe[toggleColor] } },
   };
   previousD = currentD;
@@ -195,7 +193,7 @@ const writeXLSX = sheetData => {
     XLSX.utils.book_append_sheet(workbook, sheet, sheetName);
   });
   console.log(`create: ${targetFolder}_content.xlsx`.warn);
-  XLSX.writeFile(workbook, `./dist/${targetFolder}_content.xlsx`, {
+  XLSX.writeFile(workbook, `../${targetFolder}_content.xlsx`, {
     type: 'xlsx',
   });
   console.log('succeed!'.info);

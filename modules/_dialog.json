@@ -5,18 +5,9 @@
       "preQuestion": false,
       "question": "探索するフォルダ",
       "determined": "rootDirectory: ",
-      "default": "C:/Users",
+      "default": "C:\\Users",
       "type": "string",
       "property": "rootDirectory"
-    },
-    {
-      "category": false,
-      "preQuestion": false,
-      "question": "ルートパスで出力しますか？",
-      "determined": "rootPath: ",
-      "default": "y",
-      "type": "boolean",
-      "property": "rootPath"
     },
     {
       "category": false,
