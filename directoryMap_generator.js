@@ -75,6 +75,14 @@ const sortFunc = (a, b) => {
   return 0;
 };
 
+const sortFunc2 = (a, b) => {
+  a = a[1].folderPath.toLowerCase();
+  b = b[1].folderPath.toLowerCase();
+  if (a < b) return -1;
+  if (a > b) return 1;
+  return 0;
+};
+
 // リストを成形
 const listProcessing = () => {
   // ファイルリストをファイル一覧シート用に加工
@@ -98,6 +106,9 @@ const listProcessing = () => {
       note: '',
     });
   }
+  sheetData[0].data = Object.entries(sheetData[0].data)
+    .sort(sortFunc2)
+    .map(arr => arr[1]);
 
   // フォルダリストをディレクトリマップシート用に成形
   const standard = [];
