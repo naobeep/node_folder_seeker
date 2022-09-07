@@ -88,7 +88,6 @@ const listProcessing = () => {
   // ファイルリストをファイル一覧シート用に加工
   rawFileList.sort(sortFunc);
   for (const [i, fp] of rawFileList.entries()) {
-    const num = ('0000' + (i + 1)).slice(-4);
     const filePath = settings.rootDirectory.match(/(c:\\Users|e:\\|h:\\)/)
       ? fp.replace(dir, '').replaceAll('\\', '/')
       : fp;
@@ -97,7 +96,7 @@ const listProcessing = () => {
     const ext = filename.split('.').at(-1).toLowerCase();
 
     sheetData[0].data.push({
-      'No.': num,
+      'No.': '',
       ext,
       filePath,
       folderPath,
@@ -108,7 +107,11 @@ const listProcessing = () => {
   }
   sheetData[0].data = Object.entries(sheetData[0].data)
     .sort(sortFunc2)
-    .map(arr => arr[1]);
+    .map((arr, i) => {
+      const num = ('0000' + (i + 1)).slice(-4);
+      arr[1]['No.'] = num;
+      return arr[1];
+    });
 
   // フォルダリストをディレクトリマップシート用に成形
   const standard = [];
@@ -212,4 +215,4 @@ seek(dir);
 setTimeout(() => {
   listProcessing();
   writeXLSX(sheetData);
-}, 10000);
+}, 60000);
