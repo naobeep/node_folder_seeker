@@ -33,6 +33,7 @@ const delimiter = settings.rootDirectory.match(/(c:\\Users|e:\\|h:\\)/)
   ? '/'
   : '\\';
 const stripe = ['ffffff', 'eeeeee'];
+settings.delay = 60000;
 
 const targetFolder = dir.split('\\').at(-1);
 const rawFileList = [];
@@ -215,4 +216,4 @@ seek(dir);
 setTimeout(() => {
   listProcessing();
   writeXLSX(sheetData);
-}, 60000);
+}, settings.delay);
